@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fffaf3">
+<link rel="manifest" href="manifest.webmanifest">
+<title>かぎ針編み パターンノート V4</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fffaf3;color:#493f39;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+.wrap{max-width:900px;margin:auto;padding:18px 14px 48px}
+h1{font-size:22px;margin:0 0 5px}.sub,.notice,.muted,.status{font-size:12px;color:#81766e}
+.card{background:#fff;border:1px solid #eadfd5;border-radius:16px;padding:15px;margin:12px 0;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+h2{font-size:16px;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+label{display:block;font-size:12px;color:#756b64}
+.full{grid-column:1/-1}
+input,select,button{font:inherit}
+input[type="text"],input[type="number"],select{
+ width:100%;margin-top:6px;border:1px solid #cfc4bb;border-radius:10px;
+ padding:11px;background:#fff;color:#493f39;min-height:44px;
+ -webkit-appearance:none;appearance:none;
+}
+input:focus,select:focus{outline:2px solid #cbb8a8;outline-offset:1px}
+button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#fff;font-weight:700;min-height:42px}
+.ghost{background:#f1eae4;color:#5b5048}.danger{background:#fff0ed;color:#a54f43}.small{font-size:12px;padding:7px 10px;min-height:36px}
+.yarn{border:1px solid #e7ddd4;border-radius:13px;padding:12px;margin:10px 0;background:#fffcf9}
+.yhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rows{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.prow{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px;align-items:center}
+.pno{font-size:13px;font-weight:700}
+.chart{background:#fffaf6;border:1px solid #eadfd5;border-radius:12px;padding:14px;margin-top:12px;min-height:80px;overflow:auto}
+.cline{display:flex;gap:8px;align-items:center;min-height:40px;border-bottom:1px dashed #e8ddd4}
+.cline:last-child{border-bottom:0}.cno{min-width:45px;font-size:12px}.symbols{display:flex;gap:5px;flex-wrap:wrap}
+.sym{display:inline-flex;min-width:30px;height:30px;padding:0 6px;align-items:center;justify-content:center;border:1px solid #d9cec4;border-radius:7px;background:#fff;font-size:18px}
+.photo{border:1px dashed #cfc2b7;border-radius:12px;padding:10px}.photo img{display:block;max-width:100%;max-height:360px;margin:10px auto 0;border-radius:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.project{padding:10px;border:1px solid #e7ddd4;border-radius:11px;margin:7px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.projectName{font-weight:700}.saved{color:#66785f}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.prow{grid-template-columns:52px minmax(0,1fr)}.wrap{padding:14px 10px 40px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🧶 かぎ針編み パターンノート V4</h1>
+<div class="sub">入力内容は自動保存されます</div>
+
+<section class="card">
+<h2>作品</h2>
+<div class="grid">
+<label>作品名<input id="name" type="text" autocomplete="off" placeholder="例：ミッキー風風船"></label>
+<label>かぎ針号数
+<select id="hook"><option value="">選択してください</option>
+<option>2/0号</option><option>3/0号</option><option>4/0号</option><option>5/0号</option><option>6/0号</option><option>7/0号</option><option>8/0号</option><option>9/0号</option><option>10/0号</option><option>12/0号</option><option>14/0号</option><option>16/0号</option>
+<option>2.0mm</option><option>2.5mm</option><option>3.0mm</option><option>3.5mm</option><option>4.0mm</option><option>4.5mm</option><option>5.0mm</option><option>5.5mm</option><option>6.0mm</option><option>6.5mm</option><option>7.0mm</option><option>8.0mm</option><option>9.0mm</option><option>10.0mm</option><option>12.0mm</option><option>15.0mm</option>
+</select></label>
+</div>
+</section>
+
+<section class="card">
+<h2>🧶 糸情報</h2>
+<div id="yarns">
+<div class="yarn">
+<div class="yhead"><b>糸 1</b></div>
+<div class="grid">
+<label>① 糸メーカー<input type="text" class="maker" autocomplete="off" placeholder="例：ハマナカ"></label>
+<label>② 商品名<input type="text" class="product" autocomplete="off" placeholder="例：ウォッシュコットン"></label>
+<label class="full">③ 色番号／色<input type="text" class="color" autocomplete="off" placeholder="例：26／ブルー"></label>
+</div>
+</div>
+</div>
+<button id="addYarn" type="button" class="ghost">＋ 糸を追加する</button>
+<div class="notice" style="margin-top:8px">糸ごとに「糸メーカー・商品名・色番号／色」を入力できます。</div>
+</section>
+
+<section class="card">
+<h2>📖 編み図にしたい編み方</h2>
+<div class="notice">段数は最初から表示されています。各段の入力欄には編み方だけ入力してください。</div>
+<div id="rows" class="rows"><div class="prow"><div class="pno">1段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
+<div class="prow"><div class="pno">2段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
+<div class="prow"><div class="pno">3段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
+<div class="prow"><div class="pno">4段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
+<div class="prow"><div class="pno">5段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
+<div class="prow"><div class="pno">6段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
+<div class="prow"><div class="pno">7段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
+<div class="prow"><div class="pno">8段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
+<div class="prow"><div class="pno">9段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
+<div class="prow"><div class="pno">10段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div></div>
+<button id="addRow" type="button" class="ghost" style="margin-top:10px">＋ 段を追加する</button>
+<div id="draftStatus" class="status">自動保存：待機中</div>
+</section>
+
+<section class="card">
+<h2>🧩 編み図</h2>
+<div id="chart" class="chart"><span class="muted">編み方を入力すると、ここに自動で反映されます。</span></div>
+</section>
+
+<section class="card">
+<h2>📷 完成写真</h2>
+<div class="photo">
+<input id="photo" type="file" accept="image/*">
+<div class="muted">写真も下書きに保存されます。</div>
+<img id="preview" hidden>
+</div>
+</section>
+
+<section class="card">
+<h2>📏 サイズ計算（簡易）</h2>
+<div class="grid">
+<label>基準物の実寸(cm)<input id="refCm" type="number" step="0.1"></label>
+<label>基準物の幅(px)<input id="refPx" type="number"></label>
+<label>作品の高さ(px)<input id="objH" type="number"></label>
+<label>作品の幅(px)<input id="objW" type="number"></label>
+</div>
+<div id="size" class="notice" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>💾 作品保存</h2>
+<div class="actions">
+<button id="save" type="button">この作品を保存</button>
+<button id="new" type="button" class="ghost">新しい作品</button>
+</div>
+<div id="saveStatus" class="status"></div>
+</section>
+
+<section class="card">
+<h2>保存した作品</h2>
+<div id="projects"><span class="muted">まだ保存作品はありません。</span></div>
+</section>
+
+<section class="card">
+<h2>バックアップ</h2>
+<div class="actions">
+<button id="export" type="button" class="ghost">JSONを書き出す</button>
+<button id="importButton" type="button" class="ghost">JSONを読み込む</button>
+<input id="import" type="file" accept=".json" hidden>
+</div>
+</section>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const DRAFT_KEY="crochetPatternV4Draft";
+const PROJECT_KEY="crochetPatternV4Projects";
+let currentId=null;
+let photoData="";
+let yarnCards=[];
+
+function esc(v){
+ return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function addYarn(data){
+ data=data||{};
+ const card=document.createElement("div");
+ card.className="yarn";
+ card.innerHTML=
+ '<div class="yhead"><b></b><button type="button" class="danger small deleteYarn">削除</button></div>'+
+ '<div class="grid">'+
+ '<label>① 糸メーカー<input type="text" class="maker" autocomplete="off" placeholder="例：ハマナカ"></label>'+
+ '<label>② 商品名<input type="text" class="product" autocomplete="off" placeholder="例：ウォッシュコットン"></label>'+
+ '<label class="full">③ 色番号／色<input type="text" class="color" autocomplete="off" placeholder="例：26／ブルー"></label>'+
+ '</div>';
+ $("yarns").appendChild(card);
+ yarnCards.push(card);
+ card.querySelector(".maker").value=data.maker||"";
+ card.querySelector(".product").value=data.product||data.yarn||"";
+ card.querySelector(".color").value=data.color||"";
+ card.querySelectorAll("input").forEach(input=>{
+   input.addEventListener("input",saveDraft);
+   input.addEventListener("change",saveDraft);
+ });
+ card.querySelector(".deleteYarn").addEventListener("click",function(){
+   if(yarnCards.length===1){alert("糸情報は1種類以上必要です。");return;}
+   card.remove();
+   yarnCards=yarnCards.filter(x=>x!==card);
+   renumberYarns();
+   saveDraft();
+ });
+ renumberYarns();
+}
+
+function renumberYarns(){
+ yarnCards.forEach((card,i)=>{card.querySelector("b").textContent="糸 "+(i+1);});
+}
+
+function setYarns(list){
+ $("yarns").innerHTML="";
+ yarnCards=[];
+ (Array.isArray(list)&&list.length?list:[{}]).forEach(addYarn);
+}
+
+function getYarns(){
+ return yarnCards.map(card=>({
+   maker:card.querySelector(".maker").value,
+   product:card.querySelector(".product").value,
+   color:card.querySelector(".color").value
+ }));
+}
+
+function buildRows(values){
+ const box=$("rows");
+ box.innerHTML="";
+ const count=Math.max(10,Array.isArray(values)?values.length:0);
+ for(let i=0;i<count;i++){
+   const row=document.createElement("div");
+   row.className="prow";
+   row.innerHTML='<div class="pno">'+(i+1)+'段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力">';
+   row.querySelector(".stitch").value=(values&&values[i])||"";
+   row.querySelector(".stitch").addEventListener("input",function(){
+     renderChart();
+     saveDraft();
+   });
+   row.querySelector(".stitch").addEventListener("change",function(){
+     renderChart();
+     saveDraft();
+   });
+   box.appendChild(row);
+ }
+}
+
+function getPattern(){
+ return Array.from(document.querySelectorAll(".stitch")).map(x=>x.value);
+}
+
+const SYMBOLS={
+ "細編み":"×","中長編み":"T","長編み":"T̅","長々編み":"T̅̅",
+ "引き抜き編み":"●","鎖編み":"○","立ち上がり":"↑",
+ "増し目":"V","減らし目":"Λ","わ":"◎"
+};
+
+function renderChart(){
+ const values=getPattern();
+ const chart=$("chart");
+ chart.innerHTML="";
+ if(!values.some(v=>v.trim())){
+   chart.innerHTML='<span class="muted">編み方を入力すると、ここに自動で反映されます。</span>';
+   return;
+ }
+ values.forEach((text,index)=>{
+   if(!text.trim()) return;
+   const line=document.createElement("div");
+   line.className="cline";
+   const no=document.createElement("div");
+   no.className="cno";
+   no.textContent=(index+1)+"段目";
+   const symbols=document.createElement("div");
+   symbols.className="symbols";
+   const matches=text.match(/中長編み|長々編み|引き抜き編み|細編み|長編み|鎖編み|立ち上がり|増し目|減らし目|わ/g)||[];
+   if(!matches.length){
+     symbols.innerHTML='<span class="muted">まだ対応する記号を判定できません</span>';
+   }else{
+     matches.forEach(word=>{
+       const s=document.createElement("span");
+       s.className="sym";
+       s.textContent=SYMBOLS[word];
+       s.title=word;
+       symbols.appendChild(s);
+     });
+   }
+   line.append(no,symbols);
+   chart.appendChild(line);
+ });
+}
+
+function getData(){
+ return {
+   id:currentId||makeId(),
+   name:$("name").value,
+   hook:$("hook").value,
+   yarns:getYarns(),
+   pattern:getPattern(),
+   photo:photoData,
+   size:{
+     refCm:$("refCm").value,
+     refPx:$("refPx").value,
+     objH:$("objH").value,
+     objW:$("objW").value
+   }
+ };
+}
+
+function makeId(){
+ return "p_"+Date.now()+"_"+Math.random().toString(36).slice(2,8);
+}
+
+function saveDraft(){
+ try{
+   localStorage.setItem(DRAFT_KEY,JSON.stringify(getData()));
+   $("draftStatus").textContent="自動保存：保存済み ✓";
+   $("draftStatus").className="status saved";
+ }catch(e){
+   $("draftStatus").textContent="自動保存：写真サイズが大きすぎる可能性があります";
+ }
+}
+
+function loadDraft(){
+ try{
+   const raw=localStorage.getItem(DRAFT_KEY);
+   if(!raw) return false;
+   const data=JSON.parse(raw);
+   applyData(data);
+   $("draftStatus").textContent="自動保存：前回の入力を復元しました ✓";
+   $("draftStatus").className="status saved";
+   return true;
+ }catch(e){return false;}
+}
+
+function applyData(data){
+ currentId=data.id||makeId();
+ $("name").value=data.name||"";
+ $("hook").value=data.hook||"";
+ let ys=Array.isArray(data.yarns)?data.yarns:null;
+ if(!ys){
+   ys=(data.maker||data.yarn||data.color)?[{maker:data.maker||"",product:data.yarn||"",color:data.color||""}]:[{}];
+ }
+ setYarns(ys);
+ buildRows(Array.isArray(data.pattern)?data.pattern:[]);
+ photoData=data.photo||"";
+ $("preview").hidden=!photoData;
+ if(photoData) $("preview").src=photoData;
+ const size=data.size||{};
+ ["refCm","refPx","objH","objW"].forEach(k=>{$(k).value=size[k]||"";});
+ renderChart();
+ calculateSize();
+}
+
+function calculateSize(){
+ const cm=Number($("refCm").value),px=Number($("refPx").value),h=Number($("objH").value),w=Number($("objW").value);
+ if(!(cm>0&&px>0)){
+   $("size").textContent="基準物の実寸(cm)と幅(px)を入力してください。";
+   return;
+ }
+ let result=[];
+ if(h>0) result.push("高さ 約 "+(h/px*cm).toFixed(1)+" cm");
+ if(w>0) result.push("幅 約 "+(w/px*cm).toFixed(1)+" cm");
+ $("size").textContent=result.length?result.join(" / "):"作品の高さ・幅(px)を入力してください。";
+}
+
+function listProjects(){
+ let list=[];
+ try{list=JSON.parse(localStorage.getItem(PROJECT_KEY)||"[]");}catch(e){}
+ const box=$("projects");
+ box.innerHTML="";
+ if(!list.length){
+   box.innerHTML='<span class="muted">まだ保存作品はありません。</span>';
+   return;
+ }
+ list.forEach(data=>{
+   const item=document.createElement("div");
+   item.className="project";
+   const info=document.createElement("div");
+   info.innerHTML="<div class='projectName'>"+esc(data.name||"無題")+"</div><div class='muted'>"+esc(data.hook||"号数未設定")+"・糸"+(data.yarns||[]).length+"種類</div>";
+   const buttons=document.createElement("div");
+   const open=document.createElement("button");
+   open.type="button";open.className="small";open.textContent="開く";
+   open.addEventListener("click",()=>applyData(data));
+   const del=document.createElement("button");
+   del.type="button";del.className="danger small";del.textContent="削除";
+   del.addEventListener("click",()=>{
+     list=list.filter(x=>x.id!==data.id);
+     localStorage.setItem(PROJECT_KEY,JSON.stringify(list));
+     listProjects();
+   });
+   buttons.append(open,del);item.append(info,buttons);box.appendChild(item);
+ });
+}
+
+$("addYarn").addEventListener("click",function(){addYarn({});saveDraft();});
+$("addRow").addEventListener("click",function(){
+ const values=getPattern();
+ values.push("");
+ buildRows(values);
+ renderChart();
+ saveDraft();
+ const inputs=document.querySelectorAll(".stitch");
+ inputs[inputs.length-1].focus();
+});
+$("name").addEventListener("input",saveDraft);
+$("name").addEventListener("change",saveDraft);
+$("hook").addEventListener("change",saveDraft);
+["refCm","refPx","objH","objW"].forEach(id=>{
+ $(id).addEventListener("input",function(){calculateSize();saveDraft();});
+ $(id).addEventListener("change",function(){calculateSize();saveDraft();});
+});
+
+$("photo").addEventListener("change",function(e){
+ const file=e.target.files&&e.target.files[0];
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=function(){
+   photoData=reader.result;
+   $("preview").src=photoData;
+   $("preview").hidden=false;
+   saveDraft();
+ };
+ reader.readAsDataURL(file);
+});
+
+$("save").addEventListener("click",function(){
+ const data=getData();
+ let list=[];
+ try{list=JSON.parse(localStorage.getItem(PROJECT_KEY)||"[]");}catch(e){}
+ const index=list.findIndex(x=>x.id===data.id);
+ if(index>=0) list[index]=data; else list.unshift(data);
+ localStorage.setItem(PROJECT_KEY,JSON.stringify(list));
+ currentId=data.id;
+ $("saveStatus").textContent="作品を保存しました ✓";
+ listProjects();
+});
+
+$("new").addEventListener("click",function(){
+ if(!confirm("入力中の作品をリセットしますか？"))return;
+ currentId=null;photoData="";
+ $("name").value="";$("hook").value="";
+ setYarns([{}]);buildRows([]);
+ $("preview").hidden=true;$("preview").src="";
+ ["refCm","refPx","objH","objW"].forEach(k=>$(k).value="");
+ renderChart();calculateSize();saveDraft();
+});
+
+$("export").addEventListener("click",function(){
+ const list=JSON.parse(localStorage.getItem(PROJECT_KEY)||"[]");
+ const blob=new Blob([JSON.stringify(list,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="crochet-pattern-backup.json";a.click();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+
+$("importButton").addEventListener("click",()=>$("import").click());
+$("import").addEventListener("change",function(e){
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ const reader=new FileReader();
+ reader.onload=function(){
+   try{
+     const list=JSON.parse(reader.result);
+     if(!Array.isArray(list))throw new Error();
+     localStorage.setItem(PROJECT_KEY,JSON.stringify(list));
+     listProjects();alert("JSONを読み込みました。");
+   }catch(err){alert("JSONを読み込めませんでした。");}
+ };
+ reader.readAsText(file);
+});
+
+window.addEventListener("pagehide",saveDraft);
+window.addEventListener("beforeunload",saveDraft);
+document.addEventListener("visibilitychange",function(){if(document.hidden)saveDraft();});
+window.addEventListener("pageshow",function(){
+ if(!currentId) loadDraft();
+});
+
+setYarns([{}]);
+buildRows([]);
+loadDraft();
+listProjects();
+renderChart();
+calculateSize();
+})();
+</script>
+</body>
+</html>
