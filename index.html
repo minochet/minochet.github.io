@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#fffaf3">
 <link rel="manifest" href="manifest.webmanifest">
-<title>かぎ針編み パターンノート V4</title>
+<title>かぎ針編み パターンノート V8</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#fffaf3;color:#493f39;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
@@ -30,19 +30,16 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 .rows{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .prow{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px;align-items:center}
 .pno{font-size:13px;font-weight:700}
-.chart{background:#fffaf6;border:1px solid #eadfd5;border-radius:12px;padding:14px;margin-top:12px;min-height:80px;overflow:auto}
-.cline{display:flex;gap:8px;align-items:center;min-height:40px;border-bottom:1px dashed #e8ddd4}
-.cline:last-child{border-bottom:0}.cno{min-width:45px;font-size:12px}.symbols{display:flex;gap:5px;flex-wrap:wrap}
-.sym{display:inline-flex;min-width:30px;height:30px;padding:0 6px;align-items:center;justify-content:center;border:1px solid #d9cec4;border-radius:7px;background:#fff;font-size:18px}
+.chart{padding:8px 2px;margin-top:12px;min-height:80px;overflow:auto}.cline{padding:10px 0;border-bottom:1px dashed #e8ddd4}.cline:last-child{border-bottom:0}.cmeta{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}.cno{min-width:52px;font-size:12px;font-weight:700}.end{font-size:12px;color:#6c7a67;font-weight:700}.symbols{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-left:52px}.sym{display:inline-flex;align-items:center;justify-content:center;font-size:25px;line-height:1;white-space:nowrap}.group{display:inline-flex;align-items:center;gap:2px}.group .count{font-size:13px;font-weight:800;color:#7d6257;margin-left:1px}.group .repeat{font-size:12px;color:#81766e;margin-left:1px}.final-chart{overflow:auto;padding:4px 0 10px}.final-chart svg{display:block;width:100%;min-width:340px;height:auto}.round-summary{font-size:12px;color:#6c7a67;font-weight:700;margin:6px 0 0}.final-note{font-size:11px;color:#8b8078;margin-top:7px}
 .photo{border:1px dashed #cfc2b7;border-radius:12px;padding:10px}.photo img{display:block;max-width:100%;max-height:360px;margin:10px auto 0;border-radius:10px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}.project{padding:10px;border:1px solid #e7ddd4;border-radius:11px;margin:7px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
 .projectName{font-weight:700}.saved{color:#66785f}
-@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.prow{grid-template-columns:52px minmax(0,1fr)}.wrap{padding:14px 10px 40px}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.prow{grid-template-columns:52px minmax(0,1fr)}.wrap{padding:14px 10px 40px}.symbols{padding-left:0}.cmeta{padding-left:0}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>🧶 かぎ針編み パターンノート V4</h1>
+<h1>🧶 かぎ針編み パターンノート V8</h1>
 <div class="sub">入力内容は自動保存されます</div>
 
 <section class="card">
@@ -75,24 +72,31 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 
 <section class="card">
 <h2>📖 編み図にしたい編み方</h2>
-<div class="notice">段数は最初から表示されています。各段の入力欄には編み方だけ入力してください。</div>
-<div id="rows" class="rows"><div class="prow"><div class="pno">1段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
-<div class="prow"><div class="pno">2段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
-<div class="prow"><div class="pno">3段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
-<div class="prow"><div class="pno">4段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
-<div class="prow"><div class="pno">5段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
-<div class="prow"><div class="pno">6段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
-<div class="prow"><div class="pno">7段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
-<div class="prow"><div class="pno">8段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
-<div class="prow"><div class="pno">9段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div>
-<div class="prow"><div class="pno">10段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力"></div></div>
+<div class="notice">例：<b>細編み5目</b> → 編み図に「×5」と表示。<br>各段の最後には、その段を編み終えた時点の目数も表示します。</div>
+<div id="rows" class="rows"><div class="prow"><div class="pno">1段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
+<div class="prow"><div class="pno">2段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
+<div class="prow"><div class="pno">3段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
+<div class="prow"><div class="pno">4段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
+<div class="prow"><div class="pno">5段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
+<div class="prow"><div class="pno">6段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
+<div class="prow"><div class="pno">7段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
+<div class="prow"><div class="pno">8段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
+<div class="prow"><div class="pno">9段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
+<div class="prow"><div class="pno">10段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div></div>
 <button id="addRow" type="button" class="ghost" style="margin-top:10px">＋ 段を追加する</button>
 <div id="draftStatus" class="status">自動保存：待機中</div>
 </section>
 
 <section class="card">
-<h2>🧩 編み図</h2>
+<h2>🧩 編み図（入力内容の反映）</h2>
 <div id="chart" class="chart"><span class="muted">編み方を入力すると、ここに自動で反映されます。</span></div>
+</section>
+
+<section class="card">
+<h2>🧶 完成形の編み図</h2>
+<div class="notice">入力した編み方から各段の編み終わりの目数を計算し、その目数と記号を使って円形に自動配置します。完成形の形を確認するためのプレビューです。</div>
+<div id="finalChart" class="final-chart"><span class="muted">各段の編み方を入力すると、完成形のプレビューがここに出ます。</span></div>
+<div class="final-note">※ 増し目・減らし目を含む円形作品を想定した自動配置です。</div>
 </section>
 
 <section class="card">
@@ -143,8 +147,10 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const DRAFT_KEY="crochetPatternV4Draft";
-const PROJECT_KEY="crochetPatternV4Projects";
+const DRAFT_KEY="crochetPatternV8Draft";
+const PROJECT_KEY="crochetPatternV8Projects";
+const OLD_DRAFT_KEYS=["crochetPatternV7Draft","crochetPatternV6Draft","crochetPatternV5Draft","crochetPatternV4Draft"];
+const OLD_PROJECT_KEYS=["crochetPatternV7Projects","crochetPatternV6Projects","crochetPatternV5Projects","crochetPatternV4Projects"];
 let currentId=null;
 let photoData="";
 let yarnCards=[];
@@ -208,14 +214,14 @@ function buildRows(values){
  for(let i=0;i<count;i++){
    const row=document.createElement("div");
    row.className="prow";
-   row.innerHTML='<div class="pno">'+(i+1)+'段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="編み方だけ入力">';
+   row.innerHTML='<div class="pno">'+(i+1)+'段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回">';
    row.querySelector(".stitch").value=(values&&values[i])||"";
    row.querySelector(".stitch").addEventListener("input",function(){
-     renderChart();
+     renderAllCharts();
      saveDraft();
    });
    row.querySelector(".stitch").addEventListener("change",function(){
-     renderChart();
+     renderAllCharts();
      saveDraft();
    });
    box.appendChild(row);
@@ -226,45 +232,114 @@ function getPattern(){
  return Array.from(document.querySelectorAll(".stitch")).map(x=>x.value);
 }
 
+// iPhone/Safariでも確実に反映されるよう、段入力は親要素でまとめて監視します。
+$("rows").addEventListener("input",function(e){
+ if(e.target && e.target.classList.contains("stitch")){
+   renderAllCharts();
+   saveDraft();
+ }
+});
+$("rows").addEventListener("change",function(e){
+ if(e.target && e.target.classList.contains("stitch")){
+   renderAllCharts();
+   saveDraft();
+ }
+});
+
+function parseStitches(text){
+ const result=[];
+ if(!text) return result;
+ const normalized=String(text).replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xfee0));
+ const names=["長々編み","引き抜き編み","中長編み","細編み","長編み","鎖編み","立ち上がり","増し目","減らし目","わ"];
+ const n=names.join("|");
+ const re=new RegExp("("+n+")\\s*(?:を\\s*)?(?:×\\s*)?(\\d+)?\\s*(?:目|回|個)?|(?:^|[、,\\s])(\\d+)\\s*(?:目|回|個)\\s*(?:の\\s*)?("+n+")","g");
+ let m;
+ while((m=re.exec(normalized))){
+   const word=m[1]||m[4];
+   const raw=m[2]||m[3];
+   const count=raw?Math.max(1,Math.min(500,parseInt(raw,10))):1;
+   result.push({word,count});
+ }
+ return result;
+}
+
 const SYMBOLS={
  "細編み":"×","中長編み":"T","長編み":"T̅","長々編み":"T̅̅",
  "引き抜き編み":"●","鎖編み":"○","立ち上がり":"↑",
  "増し目":"V","減らし目":"Λ","わ":"◎"
 };
+const NORMAL_STITCHES=new Set(["細編み","中長編み","長編み","長々編み","鎖編み","引き抜き編み"]);
 
-function renderChart(){
- const values=getPattern();
- const chart=$("chart");
- chart.innerHTML="";
- if(!values.some(v=>v.trim())){
-   chart.innerHTML='<span class="muted">編み方を入力すると、ここに自動で反映されます。</span>';
-   return;
+function analyzeRound(text, previousEnd){
+ const groups=parseStitches(text);
+ let base=0,inc=0,dec=0,hasNormal=false,hasActual=false;
+ groups.forEach(g=>{
+   if(NORMAL_STITCHES.has(g.word)){base+=g.count;hasNormal=true;hasActual=true;}
+   else if(g.word==="増し目"){inc+=g.count;hasActual=true;}
+   else if(g.word==="減らし目"){dec+=g.count;hasActual=true;}
+   else if(g.word==="わ"){hasActual=true;}
+ });
+ let end=null;
+ if(hasActual){
+   if(hasNormal) end=base+inc*2-dec;
+   else if(inc||dec) end=(previousEnd==null?0:previousEnd)+inc-dec;
+   else if(base>0) end=base;
+   if(end<0) end=0;
  }
- values.forEach((text,index)=>{
-   if(!text.trim()) return;
-   const line=document.createElement("div");
-   line.className="cline";
-   const no=document.createElement("div");
-   no.className="cno";
-   no.textContent=(index+1)+"段目";
-   const symbols=document.createElement("div");
-   symbols.className="symbols";
-   const matches=text.match(/中長編み|長々編み|引き抜き編み|細編み|長編み|鎖編み|立ち上がり|増し目|減らし目|わ/g)||[];
-   if(!matches.length){
-     symbols.innerHTML='<span class="muted">まだ対応する記号を判定できません</span>';
-   }else{
-     matches.forEach(word=>{
-       const s=document.createElement("span");
-       s.className="sym";
-       s.textContent=SYMBOLS[word];
-       s.title=word;
-       symbols.appendChild(s);
-     });
-   }
-   line.append(no,symbols);
-   chart.appendChild(line);
+ return {groups,end,base,inc,dec};
+}
+
+function calculateRounds(values){
+ let previousEnd=null;
+ return values.map((text,index)=>{
+   const a=analyzeRound(text,previousEnd);
+   if(a.end!=null) previousEnd=a.end;
+   return {index,text,groups:a.groups,end:a.end,recognized:a.groups.length>0,base:a.base,inc:a.inc,dec:a.dec};
  });
 }
+
+function formatGroups(groups){
+ return groups.map(g=>'<span class="group"><span class="sym">'+esc(SYMBOLS[g.word])+'</span><span class="count">×'+g.count+'</span></span>').join('<span class="repeat">＋</span>');
+}
+
+function renderChart(){
+ const values=getPattern(),chart=$("chart"); chart.innerHTML="";
+ const rounds=calculateRounds(values); let any=false;
+ rounds.forEach(r=>{
+   if(!r.text.trim()) return; any=true;
+   const line=document.createElement("div"); line.className="cline";
+   const meta=document.createElement("div"); meta.className="cmeta";
+   meta.innerHTML='<span class="cno">'+(r.index+1)+'段目</span>'+(r.end!=null?'<span class="end">編み終わり：'+r.end+'目</span>':'<span class="end">目数を計算できません</span>');
+   const symbols=document.createElement("div"); symbols.className="symbols";
+   symbols.innerHTML=r.groups.length?formatGroups(r.groups):'<span class="muted">編み方を判定できません</span>';
+   line.append(meta,symbols); chart.appendChild(line);
+ });
+ if(!any) chart.innerHTML='<span class="muted">編み方を入力すると、ここに自動で反映されます。</span>';
+}
+
+function polar(cx,cy,r,a){const rad=(a-90)*Math.PI/180;return{x:cx+r*Math.cos(rad),y:cy+r*Math.sin(rad)};}
+function renderFinalChart(){
+ const values=getPattern(),out=$("finalChart");
+ const rounds=calculateRounds(values).filter(r=>r.text.trim()&&r.groups.length);
+ if(!rounds.length){out.innerHTML='<span class="muted">各段の編み方を入力すると、完成形のプレビューがここに出ます。</span>';return;}
+ const size=680,cx=340,cy=340; let svg='<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="完成形の編み図プレビュー"><rect width="100%" height="100%" fill="#fff" rx="18"/>';
+ svg+='<circle cx="'+cx+'" cy="'+cy+'" r="22" fill="none" stroke="#8b8b8b" stroke-width="3"/><text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" font-size="24" fill="#493f39">わ</text>';
+ rounds.forEach((r,ri)=>{
+   const radius=55+(ri+1)*Math.min(38,250/Math.max(1,rounds.length));
+   svg+='<circle cx="'+cx+'" cy="'+cy+'" r="'+radius.toFixed(1)+'" fill="none" stroke="#eee4dc" stroke-width="1"/>';
+   const tokens=[]; r.groups.forEach(g=>{for(let i=0;i<g.count;i++)tokens.push(g.word);});
+   const n=Math.min(tokens.length,120);
+   for(let i=0;i<n;i++){
+     const a=360*i/n,p=polar(cx,cy,radius,a),sym=SYMBOLS[tokens[i]];
+     svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+6).toFixed(1)+'" text-anchor="middle" font-size="'+(n>72?15:20)+'" fill="#493f39">'+esc(sym)+'</text>';
+   }
+   const label=polar(cx,cy,radius,315);
+   const endLabel=r.end!=null?(r.index+1)+'段 '+r.end+'目':(r.index+1)+'段';
+   svg+='<text x="'+label.x.toFixed(1)+'" y="'+label.y.toFixed(1)+'" font-size="11" fill="#7d6257">'+endLabel+'</text>';
+ });
+ svg+='</svg>'; out.innerHTML=svg;
+}
+function renderAllCharts(){renderChart();renderFinalChart();}
 
 function getData(){
  return {
@@ -324,7 +399,7 @@ function applyData(data){
  if(photoData) $("preview").src=photoData;
  const size=data.size||{};
  ["refCm","refPx","objH","objW"].forEach(k=>{$(k).value=size[k]||"";});
- renderChart();
+ renderAllCharts();
  calculateSize();
 }
 
@@ -369,7 +444,7 @@ function listProjects(){
  });
 }
 
-$("addYarn").addEventListener("click",function(){addYarn({});saveDraft();});
+$("addYarn").addEventListener("click",function(e){ e.preventDefault(); addYarn({}); saveDraft(); });
 $("addRow").addEventListener("click",function(){
  const values=getPattern();
  values.push("");
@@ -419,7 +494,7 @@ $("new").addEventListener("click",function(){
  setYarns([{}]);buildRows([]);
  $("preview").hidden=true;$("preview").src="";
  ["refCm","refPx","objH","objW"].forEach(k=>$(k).value="");
- renderChart();calculateSize();saveDraft();
+ renderAllCharts();calculateSize();saveDraft();
 });
 
 $("export").addEventListener("click",function(){
@@ -456,7 +531,7 @@ setYarns([{}]);
 buildRows([]);
 loadDraft();
 listProjects();
-renderChart();
+renderAllCharts();
 calculateSize();
 })();
 </script>
