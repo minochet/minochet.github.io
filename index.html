@@ -94,9 +94,9 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 
 <section class="card">
 <h2>🧶 完成形の編み図</h2>
-<div class="notice">入力内容から形を判断して配置します。「わ」が入力されている場合だけ輪編みとして表示し、「わ」がなければ勝手に輪から始めません。</div>
+<div class="notice">入力内容から形を判断して配置します。「わ（輪）」が入力されている場合だけ輪編みとして表示し、「わ（輪）」がなければ勝手に輪から始めません。</div>
 <div id="finalChart" class="final-chart"><span class="muted">各段の編み方を入力すると、完成形のプレビューがここに出ます。</span></div>
-<div class="final-note">※「わ」がある場合：輪編みとして表示 ／ 「わ」がない場合：往復編みなどを想定した段ごとの配置で表示</div>
+<div class="final-note">※「わ（輪）」がある場合：輪編みとして表示 ／ 「わ（輪）」がない場合：輪を追加せず、段ごとの配置で表示</div>
 </section>
 
 <section class="card">
@@ -250,7 +250,7 @@ function parseStitches(text){
  const result=[];
  if(!text) return result;
  const normalized=String(text).replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xfee0));
- const names=["長々編み","引き抜き編み","中長編み","細編み","長編み","鎖編み","立ち上がり","増し目","減らし目","わ"];
+ const names=["長々編み","引き抜き編み","中長編み","細編み","長編み","鎖編み","立ち上がり","増し目","減らし目","わ","輪"];
  const n=names.join("|");
  const re=new RegExp("("+n+")\\s*(?:を\\s*)?(?:×\\s*)?(\\d+)?\\s*(?:目|回|個)?|(?:^|[、,\\s])(\\d+)\\s*(?:目|回|個)\\s*(?:の\\s*)?("+n+")","g");
  let m;
@@ -266,7 +266,7 @@ function parseStitches(text){
 const SYMBOLS={
  "細編み":"×","中長編み":"T","長編み":"T̅","長々編み":"T̅̅",
  "引き抜き編み":"●","鎖編み":"○","立ち上がり":"↑",
- "増し目":"V","減らし目":"Λ","わ":"◎"
+ "増し目":"V","減らし目":"Λ","わ":"◎","輪":"◎"
 };
 const NORMAL_STITCHES=new Set(["細編み","中長編み","長編み","長々編み","鎖編み","引き抜き編み"]);
 
@@ -277,7 +277,7 @@ function analyzeRound(text, previousEnd){
    if(NORMAL_STITCHES.has(g.word)){base+=g.count;hasNormal=true;hasActual=true;}
    else if(g.word==="増し目"){inc+=g.count;hasActual=true;}
    else if(g.word==="減らし目"){dec+=g.count;hasActual=true;}
-   else if(g.word==="わ"){hasRing=true;hasActual=true;}
+   else if(g.word==="わ"||g.word==="輪"){hasRing=true;hasActual=true;}
  });
  let end=null;
  if(hasNormal){
@@ -341,7 +341,7 @@ function expandGroups(groups){
  const tokens=[];
  groups.forEach(g=>{
    // 「わ」は中心の開始記号として扱い、周囲の目数には並べません。
-   if(g.word==="わ") return;
+   if(g.word==="わ"||g.word==="輪") return;
    for(let i=0;i<g.count;i++) tokens.push(g.word);
  });
  return tokens;
@@ -350,6 +350,7 @@ function expandGroups(groups){
 function renderRoundFinalChart(rounds,out){
  const size=680,cx=340,cy=340;
  let svg='<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="完成形の輪編みプレビュー"><rect width="100%" height="100%" fill="#fff" rx="18"/>';
+ // 「輪」が入力された場合だけ、中心を輪として表示します。
  svg+='<circle cx="'+cx+'" cy="'+cy+'" r="24" fill="none" stroke="#8b8b8b" stroke-width="3"/><text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" font-size="22" fill="#493f39">◎</text>';
  rounds.forEach((r,ri)=>{
    const radius=58+(ri+1)*Math.min(38,250/Math.max(1,rounds.length));
@@ -362,9 +363,6 @@ function renderRoundFinalChart(rounds,out){
        svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+6).toFixed(1)+'" text-anchor="middle" font-size="'+(n>72?15:20)+'" fill="#493f39">'+esc(sym)+'</text>';
      }
    }
-   const label=polar(cx,cy,radius,315);
-   const endLabel=r.end!=null?(r.index+1)+'段・'+r.end+'目':(r.index+1)+'段';
-   svg+='<text x="'+label.x.toFixed(1)+'" y="'+label.y.toFixed(1)+'" font-size="11" fill="#7d6257">'+endLabel+'</text>';
  });
  svg+='</svg>'; out.innerHTML=svg;
 }
@@ -372,7 +370,7 @@ function renderRoundFinalChart(rounds,out){
 function renderFlatFinalChart(rounds,out){
  const maxTokens=Math.max(1,...rounds.map(r=>expandGroups(r.groups).length));
  const cols=Math.max(1,Math.min(maxTokens,24));
- const cellW=34, rowH=58, left=62, right=72, top=34, bottom=34;
+ const cellW=34, rowH=58, left=62, right=20, top=34, bottom=34;
  const width=Math.max(420,left+right+cols*cellW);
  const height=top+bottom+rounds.length*rowH;
  let svg='<svg viewBox="0 0 '+width+' '+height+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="完成形の往復編みプレビュー"><rect width="100%" height="100%" fill="#fff" rx="18"/>';
@@ -388,10 +386,8 @@ function renderFlatFinalChart(rounds,out){
      const x=left+cellW*pos+cellW/2;
      svg+='<text x="'+x+'" y="'+(y+7)+'" text-anchor="middle" font-size="20" fill="#493f39">'+esc(SYMBOLS[word])+'</text>';
    });
-   const label=r.end!=null?(r.end+'目'): '—';
-   svg+='<text x="'+(left+cols*cellW+12)+'" y="'+(y+5)+'" font-size="12" font-weight="700" fill="#6c7a67">'+label+'</text>';
    if(tokens.length>cols){
-     svg+='<text x="'+left+'" y="'+(y+35)+'" font-size="10" fill="#8b8078">※ '+tokens.length+'目のうち先頭'+cols+'目を表示</text>';
+     svg+='<text x="'+left+'" y="'+(y+35)+'" font-size="10" fill="#8b8078">※ 表示できる範囲まで記号を配置</text>';
    }
  });
  svg+='</svg>'; out.innerHTML=svg;
