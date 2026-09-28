@@ -30,7 +30,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 .rows{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .prow{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px;align-items:center}
 .pno{font-size:13px;font-weight:700}
-.chart{padding:8px 2px;margin-top:12px;min-height:80px;overflow:auto}.cline{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px dashed #e8ddd4}.cline:last-child{border-bottom:0}.cno{font-size:12px;font-weight:700;white-space:nowrap}.end{font-size:12px;color:#6c7a67;font-weight:800;white-space:nowrap;padding-left:6px}.symbols{display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-width:0}.sym{display:inline-flex;align-items:center;justify-content:center;font-size:25px;line-height:1;white-space:nowrap}.group{display:inline-flex;align-items:center;gap:2px}.group .count{font-size:13px;font-weight:800;color:#7d6257;margin-left:1px}.group .repeat{font-size:12px;color:#81766e;margin-left:1px}.final-chart{overflow:auto;padding:4px 0 10px}.final-chart svg{display:block;width:100%;min-width:340px;height:auto}.round-summary{font-size:12px;color:#6c7a67;font-weight:700;margin:6px 0 0}.final-note{font-size:11px;color:#8b8078;margin-top:7px}
+.chart{padding:8px 2px;margin-top:12px;min-height:80px;overflow:auto}.cline{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px dashed #e8ddd4}.cline:last-child{border-bottom:0}.cno{font-size:12px;font-weight:700;white-space:nowrap}.end{font-size:12px;color:#6c7a67;font-weight:800;white-space:nowrap;padding-left:6px}.symbols{display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-width:0}.sym{display:inline-flex;align-items:center;justify-content:center;font-size:25px;line-height:1;white-space:nowrap}.group{display:inline-flex;align-items:center;gap:2px}.group .count{font-size:13px;font-weight:800;color:#7d6257;margin-left:1px}.group .set{font-size:20px;white-space:nowrap}.group .set .sym{font-size:23px}.group .repeat{font-size:12px;color:#81766e;margin-left:1px}.final-chart{overflow:auto;padding:4px 0 10px}.final-chart svg{display:block;width:100%;min-width:340px;height:auto}.round-summary{font-size:12px;color:#6c7a67;font-weight:700;margin:6px 0 0}.final-note{font-size:11px;color:#8b8078;margin-top:7px}
 .photo{border:1px dashed #cfc2b7;border-radius:12px;padding:10px}.photo img{display:block;max-width:100%;max-height:360px;margin:10px auto 0;border-radius:10px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}.project{padding:10px;border:1px solid #e7ddd4;border-radius:11px;margin:7px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
 .projectName{font-weight:700}.saved{color:#66785f}
@@ -249,12 +249,42 @@ $("rows").addEventListener("change",function(e){
 function parseStitches(text){
  const result=[];
  if(!text) return result;
- const normalized=String(text).replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xfee0));
- const names=["長々編み","引き抜き編み","中長編み","細編み","長編み","鎖編み","立ち上がり","増し目","減らし目","わ","輪"];
+ const normalized=String(text)
+   .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xfee0))
+   .replace(/引き抜き編み/g,"引き抜き");
+
+ // 「細編み、増し目のセットを8回」「細編み、増し目を8セット」などを、
+ // まとまりとして認識します。編み図では（×、V）×8 と表示します。
+ const setMatches=[];
+ const setRe1=/(.+?)(?:の)?\s*セット(?:を|に)?\s*(\d+)\s*回/g;
+ const setRe2=/(.+?)\s*を\s*(\d+)\s*セット/g;
+ let m;
+ while((m=setRe1.exec(normalized))) setMatches.push({index:m.index,full:m[0],parts:m[1],repeat:m[2]});
+ while((m=setRe2.exec(normalized))) setMatches.push({index:m.index,full:m[0],parts:m[1],repeat:m[2]});
+ const setRanges=[];
+ setMatches.sort((a,b)=>a.index-b.index);
+ setMatches.forEach(sm=>{
+   const rawParts=sm.parts.trim().split(/[、,＋+と]/).map(x=>x.trim()).filter(Boolean);
+   const repeat=Math.max(1,Math.min(500,parseInt(sm.repeat,10)));
+   const parts=[];
+   rawParts.forEach(part=>{
+     const mm=part.match(/^(立ち上がり|増し目|減らし目|細編み|中長編み|長々編み|長編み|鎖編み|引き抜き|輪|わ)\s*(?:×\s*)?(\d+)?\s*(?:目|回|個)?$/);
+     if(mm) parts.push({word:mm[1],count:mm[2]?parseInt(mm[2],10):1});
+   });
+   if(parts.length){
+     const set={word:"__set",count:repeat,parts};
+     result.push(set);
+     setRanges.push([sm.index,sm.index+sm.full.length]);
+   }
+ });
+
+ // セット部分を除いた残りから通常の指示を拾います。
+ let masked=normalized;
+ setRanges.reverse().forEach(([a,b])=>{masked=masked.slice(0,a)+" ".repeat(b-a)+masked.slice(b);});
+ const names=["長々編み","引き抜き","中長編み","細編み","長編み","鎖編み","立ち上がり","増し目","減らし目","わ","輪"];
  const n=names.join("|");
  const re=new RegExp("("+n+")\\s*(?:を\\s*)?(?:×\\s*)?(\\d+)?\\s*(?:目|回|個)?|(?:^|[、,\\s])(\\d+)\\s*(?:目|回|個)\\s*(?:の\\s*)?("+n+")","g");
- let m;
- while((m=re.exec(normalized))){
+ while((m=re.exec(masked))){
    const word=m[1]||m[4];
    const raw=m[2]||m[3];
    const count=raw?Math.max(1,Math.min(500,parseInt(raw,10))):1;
@@ -265,26 +295,41 @@ function parseStitches(text){
 
 const SYMBOLS={
  "細編み":"×","中長編み":"T","長編み":"T̅","長々編み":"T̅̅",
- "引き抜き編み":"●","鎖編み":"○","立ち上がり":"↑",
+ "引き抜き":"●","引き抜き編み":"●","鎖編み":"○","立ち上がり":"↑",
  "増し目":"V","減らし目":"Λ","わ":"◎","輪":"◎"
 };
-const NORMAL_STITCHES=new Set(["細編み","中長編み","長編み","長々編み","鎖編み","引き抜き編み"]);
+const NORMAL_STITCHES=new Set(["細編み","中長編み","長編み","長々編み","鎖編み"]);
 
 function analyzeRound(text, previousEnd){
  const groups=parseStitches(text);
- let base=0,inc=0,dec=0,hasNormal=false,hasActual=false,hasRing=false;
+ let base=0,inc=0,dec=0,hasNormal=false,hasRing=false,hasStanding=false,hasSlip=false,hasActual=false;
+ let setEnd=null;
  groups.forEach(g=>{
+   if(g.word==="__set"){
+     let one=0;
+     g.parts.forEach(p=>{
+       if(NORMAL_STITCHES.has(p.word)) one+=p.count;
+       else if(p.word==="増し目") one+=p.count*2;
+       else if(p.word==="減らし目") one+=p.count;
+       // 立ち上がり・引き抜き・輪はセットの終了目数に含めない
+     });
+     setEnd=(setEnd||0)+one*g.count;
+     hasActual=true;
+     return;
+   }
    if(NORMAL_STITCHES.has(g.word)){base+=g.count;hasNormal=true;hasActual=true;}
    else if(g.word==="増し目"){inc+=g.count;hasActual=true;}
    else if(g.word==="減らし目"){dec+=g.count;hasActual=true;}
-   else if(g.word==="わ"||g.word==="輪"){hasRing=true;hasActual=true;}
+   else if(g.word==="立ち上がり"){hasStanding=true;}
+   else if(g.word==="引き抜き"||g.word==="引き抜き編み"){hasSlip=true;}
+   else if(g.word==="わ"||g.word==="輪"){hasRing=true;}
  });
  let end=null;
- if(hasNormal){
-   // 増し目1回は「1目→2目」なので、段の終了目数は+1。
-   // 減らし目1回は「2目→1目」なので、段の終了目数は-1。
-   // 例：8目すべてに増し目なら 8→16目（増し目8回）。
-   // 例：8目をすべて減らし目にするなら、減らし目4回で 8→4目。
+ if(setEnd!=null){
+   // セットは「そのセットを何回編むか」から、その段の完成目数を直接算出。
+   end=setEnd;
+ }else if(hasNormal){
+   // 増し目1回は1目を2目にするので +1、減らし目1回は2目を1目にするので -1。
    end=base+inc-dec;
  }else if(inc||dec){
    end=(previousEnd==null?0:previousEnd)+inc-dec;
@@ -292,7 +337,8 @@ function analyzeRound(text, previousEnd){
    end=base;
  }
  if(end!=null && end<0) end=0;
- return {groups,end,base,inc,dec,hasRing};
+ const startsNext=/次の目から/.test(text);
+ return {groups,end,base,inc,dec,hasRing,hasStanding,hasSlip,hasActual,startsNext};
 }
 
 function calculateRounds(values){
@@ -305,7 +351,13 @@ function calculateRounds(values){
 }
 
 function formatGroups(groups){
- return groups.map(g=>'<span class="group"><span class="sym">'+esc(SYMBOLS[g.word])+'</span><span class="count">×'+g.count+'</span></span>').join('<span class="repeat">＋</span>');
+ return groups.map(g=>{
+   if(g.word==="__set"){
+     const inside=g.parts.map(p=>'<span class="sym">'+esc(SYMBOLS[p.word])+'</span>').join('<span class="repeat">、</span>');
+     return '<span class="group"><span class="set">（'+inside+'）×'+g.count+'</span></span>';
+   }
+   return '<span class="group"><span class="sym">'+esc(SYMBOLS[g.word])+'</span>'+(g.count>1?'<span class="count">×'+g.count+'</span>':'')+'</span>';
+ }).join('<span class="repeat">＋</span>');
 }
 
 function renderChart(){
@@ -340,8 +392,15 @@ function renderFinalChart(){
 function expandGroups(groups){
  const tokens=[];
  groups.forEach(g=>{
-   // 「わ」は中心の開始記号として扱い、周囲の目数には並べません。
-   if(g.word==="わ"||g.word==="輪") return;
+   if(g.word==="__set"){
+     for(let r=0;r<g.count;r++){
+       g.parts.forEach(p=>{
+         for(let i=0;i<p.count;i++) tokens.push(p.word);
+       });
+     }
+     return;
+   }
+   // 輪は中心の開始記号として扱い、周囲の目数には並べません。
    for(let i=0;i<g.count;i++) tokens.push(g.word);
  });
  return tokens;
@@ -350,18 +409,30 @@ function expandGroups(groups){
 function renderRoundFinalChart(rounds,out){
  const size=680,cx=340,cy=340;
  let svg='<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="完成形の輪編みプレビュー"><rect width="100%" height="100%" fill="#fff" rx="18"/>';
- // 「輪」が入力された場合だけ、中心を輪として表示します。
  svg+='<circle cx="'+cx+'" cy="'+cy+'" r="24" fill="none" stroke="#8b8b8b" stroke-width="3"/><text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" font-size="22" fill="#493f39">◎</text>';
  rounds.forEach((r,ri)=>{
    const radius=58+(ri+1)*Math.min(38,250/Math.max(1,rounds.length));
    svg+='<circle cx="'+cx+'" cy="'+cy+'" r="'+radius.toFixed(1)+'" fill="none" stroke="#eee4dc" stroke-width="1"/>';
-   const tokens=expandGroups(r.groups);
-   const n=Math.min(tokens.length,120);
-   if(n){
-     for(let i=0;i<n;i++){
-       const a=360*i/n,p=polar(cx,cy,radius,a),sym=SYMBOLS[tokens[i]];
-       svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+6).toFixed(1)+'" text-anchor="middle" font-size="'+(n>72?15:20)+'" fill="#493f39">'+esc(sym)+'</text>';
+   const tokens=expandGroups(r.groups).filter(x=>x!=="わ"&&x!=="輪");
+   const actual=tokens.filter(x=>x!=="立ち上がり"&&x!=="引き抜き"&&x!=="引き抜き編み");
+   const n=Math.min(Math.max(actual.length,1),120);
+   if(actual.length){
+     for(let i=0;i<actual.length;i++){
+       // 立ち上がり後は基本「根本の目」から。通常の編み始めを0度位置に揃えます。
+       const offset=r.startsNext?(360/actual.length):0;
+       const a=360*i/actual.length+offset;
+       const p=polar(cx,cy,radius,a),sym=SYMBOLS[actual[i]];
+       svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+6).toFixed(1)+'" text-anchor="middle" font-size="'+(actual.length>72?15:20)+'" fill="#493f39">'+esc(sym)+'</text>';
      }
+   }
+   // 立ち上がりは根本位置（12時）に置き、引き抜きと同じ位置に重なってもOKとします。
+   if(r.hasStanding){
+     const p=polar(cx,cy,radius,0);
+     svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y-4).toFixed(1)+'" text-anchor="middle" font-size="20" fill="#493f39">↑</text>';
+   }
+   if(r.hasSlip){
+     const p=polar(cx,cy,radius,0);
+     svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+10).toFixed(1)+'" text-anchor="middle" font-size="18" fill="#493f39">●</text>';
    }
  });
  svg+='</svg>'; out.innerHTML=svg;
@@ -592,6 +663,9 @@ loadDraft();
 listProjects();
 renderAllCharts();
 calculateSize();
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
 })();
 </script>
 </body>
