@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#fffaf3">
 <link rel="manifest" href="manifest.webmanifest">
-<title>かぎ針編み パターンノート V8</title>
+<title>かぎ針編み パターンノート V9</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#fffaf3;color:#493f39;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
@@ -30,16 +30,16 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 .rows{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .prow{display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px;align-items:center}
 .pno{font-size:13px;font-weight:700}
-.chart{padding:8px 2px;margin-top:12px;min-height:80px;overflow:auto}.cline{padding:10px 0;border-bottom:1px dashed #e8ddd4}.cline:last-child{border-bottom:0}.cmeta{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}.cno{min-width:52px;font-size:12px;font-weight:700}.end{font-size:12px;color:#6c7a67;font-weight:700}.symbols{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-left:52px}.sym{display:inline-flex;align-items:center;justify-content:center;font-size:25px;line-height:1;white-space:nowrap}.group{display:inline-flex;align-items:center;gap:2px}.group .count{font-size:13px;font-weight:800;color:#7d6257;margin-left:1px}.group .repeat{font-size:12px;color:#81766e;margin-left:1px}.final-chart{overflow:auto;padding:4px 0 10px}.final-chart svg{display:block;width:100%;min-width:340px;height:auto}.round-summary{font-size:12px;color:#6c7a67;font-weight:700;margin:6px 0 0}.final-note{font-size:11px;color:#8b8078;margin-top:7px}
+.chart{padding:8px 2px;margin-top:12px;min-height:80px;overflow:auto}.cline{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px dashed #e8ddd4}.cline:last-child{border-bottom:0}.cno{font-size:12px;font-weight:700;white-space:nowrap}.end{font-size:12px;color:#6c7a67;font-weight:800;white-space:nowrap;padding-left:6px}.symbols{display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-width:0}.sym{display:inline-flex;align-items:center;justify-content:center;font-size:25px;line-height:1;white-space:nowrap}.group{display:inline-flex;align-items:center;gap:2px}.group .count{font-size:13px;font-weight:800;color:#7d6257;margin-left:1px}.group .repeat{font-size:12px;color:#81766e;margin-left:1px}.final-chart{overflow:auto;padding:4px 0 10px}.final-chart svg{display:block;width:100%;min-width:340px;height:auto}.round-summary{font-size:12px;color:#6c7a67;font-weight:700;margin:6px 0 0}.final-note{font-size:11px;color:#8b8078;margin-top:7px}
 .photo{border:1px dashed #cfc2b7;border-radius:12px;padding:10px}.photo img{display:block;max-width:100%;max-height:360px;margin:10px auto 0;border-radius:10px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}.project{padding:10px;border:1px solid #e7ddd4;border-radius:11px;margin:7px 0;display:flex;justify-content:space-between;gap:8px;align-items:center}
 .projectName{font-weight:700}.saved{color:#66785f}
-@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.prow{grid-template-columns:52px minmax(0,1fr)}.wrap{padding:14px 10px 40px}.symbols{padding-left:0}.cmeta{padding-left:0}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.prow{grid-template-columns:52px minmax(0,1fr)}.wrap{padding:14px 10px 40px}.cline{grid-template-columns:46px minmax(0,1fr) auto;gap:6px}.symbols{padding-left:0}.end{font-size:11px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>🧶 かぎ針編み パターンノート V8</h1>
+<h1>🧶 かぎ針編み パターンノート V9</h1>
 <div class="sub">入力内容は自動保存されます</div>
 
 <section class="card">
@@ -72,7 +72,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 
 <section class="card">
 <h2>📖 編み図にしたい編み方</h2>
-<div class="notice">例：<b>細編み5目</b> → 編み図に「×5」と表示。<br>各段の最後には、その段を編み終えた時点の目数も表示します。</div>
+<div class="notice">例：<b>細編み5目</b> → 編み図に「×5」と表示。<br>各段の右端に、その段を編み終えた時点の目数を自動表示します。</div>
 <div id="rows" class="rows"><div class="prow"><div class="pno">1段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
 <div class="prow"><div class="pno">2段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
 <div class="prow"><div class="pno">3段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
@@ -94,9 +94,9 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 
 <section class="card">
 <h2>🧶 完成形の編み図</h2>
-<div class="notice">入力した編み方から各段の編み終わりの目数を計算し、その目数と記号を使って円形に自動配置します。完成形の形を確認するためのプレビューです。</div>
+<div class="notice">入力内容から形を判断して配置します。「わ」が入力されている場合だけ輪編みとして表示し、「わ」がなければ勝手に輪から始めません。</div>
 <div id="finalChart" class="final-chart"><span class="muted">各段の編み方を入力すると、完成形のプレビューがここに出ます。</span></div>
-<div class="final-note">※ 増し目・減らし目を含む円形作品を想定した自動配置です。</div>
+<div class="final-note">※「わ」がある場合：輪編みとして表示 ／ 「わ」がない場合：往復編みなどを想定した段ごとの配置で表示</div>
 </section>
 
 <section class="card">
@@ -147,9 +147,9 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const DRAFT_KEY="crochetPatternV8Draft";
-const PROJECT_KEY="crochetPatternV8Projects";
-const OLD_DRAFT_KEYS=["crochetPatternV7Draft","crochetPatternV6Draft","crochetPatternV5Draft","crochetPatternV4Draft"];
+const DRAFT_KEY="crochetPatternV9Draft";
+const PROJECT_KEY="crochetPatternV9Projects";
+const OLD_DRAFT_KEYS=["crochetPatternV8Draft","crochetPatternV7Draft","crochetPatternV6Draft","crochetPatternV5Draft","crochetPatternV4Draft"];
 const OLD_PROJECT_KEYS=["crochetPatternV7Projects","crochetPatternV6Projects","crochetPatternV5Projects","crochetPatternV4Projects"];
 let currentId=null;
 let photoData="";
@@ -272,21 +272,27 @@ const NORMAL_STITCHES=new Set(["細編み","中長編み","長編み","長々編
 
 function analyzeRound(text, previousEnd){
  const groups=parseStitches(text);
- let base=0,inc=0,dec=0,hasNormal=false,hasActual=false;
+ let base=0,inc=0,dec=0,hasNormal=false,hasActual=false,hasRing=false;
  groups.forEach(g=>{
    if(NORMAL_STITCHES.has(g.word)){base+=g.count;hasNormal=true;hasActual=true;}
    else if(g.word==="増し目"){inc+=g.count;hasActual=true;}
    else if(g.word==="減らし目"){dec+=g.count;hasActual=true;}
-   else if(g.word==="わ"){hasActual=true;}
+   else if(g.word==="わ"){hasRing=true;hasActual=true;}
  });
  let end=null;
- if(hasActual){
-   if(hasNormal) end=base+inc*2-dec;
-   else if(inc||dec) end=(previousEnd==null?0:previousEnd)+inc-dec;
-   else if(base>0) end=base;
-   if(end<0) end=0;
+ if(hasNormal){
+   // 増し目1回は「1目→2目」なので、段の終了目数は+1。
+   // 減らし目1回は「2目→1目」なので、段の終了目数は-1。
+   // 例：8目すべてに増し目なら 8→16目（増し目8回）。
+   // 例：8目をすべて減らし目にするなら、減らし目4回で 8→4目。
+   end=base+inc-dec;
+ }else if(inc||dec){
+   end=(previousEnd==null?0:previousEnd)+inc-dec;
+ }else if(base>0){
+   end=base;
  }
- return {groups,end,base,inc,dec};
+ if(end!=null && end<0) end=0;
+ return {groups,end,base,inc,dec,hasRing};
 }
 
 function calculateRounds(values){
@@ -294,7 +300,7 @@ function calculateRounds(values){
  return values.map((text,index)=>{
    const a=analyzeRound(text,previousEnd);
    if(a.end!=null) previousEnd=a.end;
-   return {index,text,groups:a.groups,end:a.end,recognized:a.groups.length>0,base:a.base,inc:a.inc,dec:a.dec};
+   return {index,text,groups:a.groups,end:a.end,recognized:a.groups.length>0,base:a.base,inc:a.inc,dec:a.dec,hasRing:a.hasRing};
  });
 }
 
@@ -308,11 +314,12 @@ function renderChart(){
  rounds.forEach(r=>{
    if(!r.text.trim()) return; any=true;
    const line=document.createElement("div"); line.className="cline";
-   const meta=document.createElement("div"); meta.className="cmeta";
-   meta.innerHTML='<span class="cno">'+(r.index+1)+'段目</span>'+(r.end!=null?'<span class="end">編み終わり：'+r.end+'目</span>':'<span class="end">目数を計算できません</span>');
+   const no=document.createElement("div"); no.className="cno"; no.textContent=(r.index+1)+"段目";
    const symbols=document.createElement("div"); symbols.className="symbols";
    symbols.innerHTML=r.groups.length?formatGroups(r.groups):'<span class="muted">編み方を判定できません</span>';
-   line.append(meta,symbols); chart.appendChild(line);
+   const end=document.createElement("div"); end.className="end";
+   end.textContent=r.end!=null?(r.end+"目"):"—";
+   line.append(no,symbols,end); chart.appendChild(line);
  });
  if(!any) chart.innerHTML='<span class="muted">編み方を入力すると、ここに自動で反映されます。</span>';
 }
@@ -322,20 +329,70 @@ function renderFinalChart(){
  const values=getPattern(),out=$("finalChart");
  const rounds=calculateRounds(values).filter(r=>r.text.trim()&&r.groups.length);
  if(!rounds.length){out.innerHTML='<span class="muted">各段の編み方を入力すると、完成形のプレビューがここに出ます。</span>';return;}
- const size=680,cx=340,cy=340; let svg='<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="完成形の編み図プレビュー"><rect width="100%" height="100%" fill="#fff" rx="18"/>';
- svg+='<circle cx="'+cx+'" cy="'+cy+'" r="22" fill="none" stroke="#8b8b8b" stroke-width="3"/><text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" font-size="24" fill="#493f39">わ</text>';
+ const isRound=rounds.some(r=>r.hasRing);
+ if(isRound){
+   renderRoundFinalChart(rounds,out);
+ }else{
+   renderFlatFinalChart(rounds,out);
+ }
+}
+
+function expandGroups(groups){
+ const tokens=[];
+ groups.forEach(g=>{
+   // 「わ」は中心の開始記号として扱い、周囲の目数には並べません。
+   if(g.word==="わ") return;
+   for(let i=0;i<g.count;i++) tokens.push(g.word);
+ });
+ return tokens;
+}
+
+function renderRoundFinalChart(rounds,out){
+ const size=680,cx=340,cy=340;
+ let svg='<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="完成形の輪編みプレビュー"><rect width="100%" height="100%" fill="#fff" rx="18"/>';
+ svg+='<circle cx="'+cx+'" cy="'+cy+'" r="24" fill="none" stroke="#8b8b8b" stroke-width="3"/><text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" font-size="22" fill="#493f39">◎</text>';
  rounds.forEach((r,ri)=>{
-   const radius=55+(ri+1)*Math.min(38,250/Math.max(1,rounds.length));
+   const radius=58+(ri+1)*Math.min(38,250/Math.max(1,rounds.length));
    svg+='<circle cx="'+cx+'" cy="'+cy+'" r="'+radius.toFixed(1)+'" fill="none" stroke="#eee4dc" stroke-width="1"/>';
-   const tokens=[]; r.groups.forEach(g=>{for(let i=0;i<g.count;i++)tokens.push(g.word);});
+   const tokens=expandGroups(r.groups);
    const n=Math.min(tokens.length,120);
-   for(let i=0;i<n;i++){
-     const a=360*i/n,p=polar(cx,cy,radius,a),sym=SYMBOLS[tokens[i]];
-     svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+6).toFixed(1)+'" text-anchor="middle" font-size="'+(n>72?15:20)+'" fill="#493f39">'+esc(sym)+'</text>';
+   if(n){
+     for(let i=0;i<n;i++){
+       const a=360*i/n,p=polar(cx,cy,radius,a),sym=SYMBOLS[tokens[i]];
+       svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+6).toFixed(1)+'" text-anchor="middle" font-size="'+(n>72?15:20)+'" fill="#493f39">'+esc(sym)+'</text>';
+     }
    }
    const label=polar(cx,cy,radius,315);
-   const endLabel=r.end!=null?(r.index+1)+'段 '+r.end+'目':(r.index+1)+'段';
+   const endLabel=r.end!=null?(r.index+1)+'段・'+r.end+'目':(r.index+1)+'段';
    svg+='<text x="'+label.x.toFixed(1)+'" y="'+label.y.toFixed(1)+'" font-size="11" fill="#7d6257">'+endLabel+'</text>';
+ });
+ svg+='</svg>'; out.innerHTML=svg;
+}
+
+function renderFlatFinalChart(rounds,out){
+ const maxTokens=Math.max(1,...rounds.map(r=>expandGroups(r.groups).length));
+ const cols=Math.max(1,Math.min(maxTokens,24));
+ const cellW=34, rowH=58, left=62, right=72, top=34, bottom=34;
+ const width=Math.max(420,left+right+cols*cellW);
+ const height=top+bottom+rounds.length*rowH;
+ let svg='<svg viewBox="0 0 '+width+' '+height+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="完成形の往復編みプレビュー"><rect width="100%" height="100%" fill="#fff" rx="18"/>';
+ rounds.forEach((r,ri)=>{
+   const tokens=expandGroups(r.groups);
+   const display=tokens.slice(0,cols);
+   const y=top+ri*rowH+rowH/2;
+   const reverse=ri%2===1;
+   svg+='<text x="14" y="'+(y+4)+'" font-size="12" fill="#493f39">'+(r.index+1)+'段</text>';
+   svg+='<line x1="'+left+'" y1="'+(y+19)+'" x2="'+(left+cols*cellW)+'" y2="'+(y+19)+'" stroke="#eee4dc" stroke-width="1"/>';
+   display.forEach((word,i)=>{
+     const pos=reverse?(display.length-1-i):i;
+     const x=left+cellW*pos+cellW/2;
+     svg+='<text x="'+x+'" y="'+(y+7)+'" text-anchor="middle" font-size="20" fill="#493f39">'+esc(SYMBOLS[word])+'</text>';
+   });
+   const label=r.end!=null?(r.end+'目'): '—';
+   svg+='<text x="'+(left+cols*cellW+12)+'" y="'+(y+5)+'" font-size="12" font-weight="700" fill="#6c7a67">'+label+'</text>';
+   if(tokens.length>cols){
+     svg+='<text x="'+left+'" y="'+(y+35)+'" font-size="10" fill="#8b8078">※ '+tokens.length+'目のうち先頭'+cols+'目を表示</text>';
+   }
  });
  svg+='</svg>'; out.innerHTML=svg;
 }
@@ -374,7 +431,13 @@ function saveDraft(){
 
 function loadDraft(){
  try{
-   const raw=localStorage.getItem(DRAFT_KEY);
+   let raw=localStorage.getItem(DRAFT_KEY);
+   if(!raw){
+     for(const key of OLD_DRAFT_KEYS){
+       const candidate=localStorage.getItem(key);
+       if(candidate){raw=candidate;break;}
+     }
+   }
    if(!raw) return false;
    const data=JSON.parse(raw);
    applyData(data);
