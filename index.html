@@ -94,9 +94,9 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 
 <section class="card">
 <h2>🧶 完成形の編み図</h2>
-<div class="notice">入力内容から形を判断して配置します。「わ（輪）」が入力されている場合だけ輪編みとして表示し、「わ（輪）」がなければ勝手に輪から始めません。</div>
+<div class="notice">入力内容から形を判断して配置します。「わ」または「輪」が入力されている場合だけ輪編みとして表示し、「わ／輪」がなければ勝手に輪から始めません。</div>
 <div id="finalChart" class="final-chart"><span class="muted">各段の編み方を入力すると、完成形のプレビューがここに出ます。</span></div>
-<div class="final-note">※「わ（輪）」がある場合：輪編みとして表示 ／ 「わ（輪）」がない場合：輪を追加せず、段ごとの配置で表示</div>
+<div class="final-note">※「わ／輪」がある場合：輪編みとして表示 ／ 「わ／輪」がない場合：輪を追加せず、段ごとの配置で表示</div>
 </section>
 
 <section class="card">
@@ -147,10 +147,10 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-const DRAFT_KEY="crochetPatternV9Draft";
-const PROJECT_KEY="crochetPatternV9Projects";
-const OLD_DRAFT_KEYS=["crochetPatternV8Draft","crochetPatternV7Draft","crochetPatternV6Draft","crochetPatternV5Draft","crochetPatternV4Draft"];
-const OLD_PROJECT_KEYS=["crochetPatternV7Projects","crochetPatternV6Projects","crochetPatternV5Projects","crochetPatternV4Projects"];
+const DRAFT_KEY="crochetPatternV9_1Draft";
+const PROJECT_KEY="crochetPatternV9_1Projects";
+const OLD_DRAFT_KEYS=["crochetPatternV9Draft","crochetPatternV8Draft","crochetPatternV7Draft","crochetPatternV6Draft","crochetPatternV5Draft","crochetPatternV4Draft"];
+const OLD_PROJECT_KEYS=["crochetPatternV9Projects","crochetPatternV8Projects","crochetPatternV7Projects","crochetPatternV6Projects","crochetPatternV5Projects","crochetPatternV4Projects"];
 let currentId=null;
 let photoData="";
 let yarnCards=[];
@@ -251,45 +251,58 @@ function parseStitches(text){
  if(!text) return result;
  const normalized=String(text)
    .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xfee0))
-   .replace(/引き抜き編み/g,"引き抜き");
+   .replace(/引き抜き編み/g,"引き抜き")
+   .replace(/\s+/g," ");
 
- // 「細編み、増し目のセットを8回」「細編み、増し目を8セット」などを、
- // まとまりとして認識します。編み図では（×、V）×8 と表示します。
+ // 「AとBを8回」「AとBを8セット」「AとBのセットを8回」を同じ意味として認識。
+ // 「○回」は、複数の編み方をひとまとまりにして繰り返す指示として扱います。
  const setMatches=[];
- const setRe1=/(.+?)(?:の)?\s*セット(?:を|に)?\s*(\d+)\s*回/g;
- const setRe2=/(.+?)\s*を\s*(\d+)\s*セット/g;
- let m;
- while((m=setRe1.exec(normalized))) setMatches.push({index:m.index,full:m[0],parts:m[1],repeat:m[2]});
- while((m=setRe2.exec(normalized))) setMatches.push({index:m.index,full:m[0],parts:m[1],repeat:m[2]});
+ const patterns=[
+   /([^、,。]+?)\s*を\s*(\d+)\s*(?:回|セット)/g,
+   /([^、,。]+?)\s*(?:の)?\s*セット\s*を\s*(\d+)\s*回/g
+ ];
+ patterns.forEach(re=>{
+   let m;
+   while((m=re.exec(normalized))) setMatches.push({index:m.index,full:m[0],parts:m[1].trim(),repeat:m[2]});
+ });
  const setRanges=[];
+ const stitchWords=["立ち上がり","増し目","減らし目","細編み","中長編み","長々編み","長編み","鎖編み","引き抜き","輪","わ"];
+ const partRe=new RegExp("("+stitchWords.join("|")+ ")\\s*(?:×\\s*)?(\\d+)?\\s*(?:目|回|個)?","g");
  setMatches.sort((a,b)=>a.index-b.index);
  setMatches.forEach(sm=>{
-   const rawParts=sm.parts.trim().split(/[、,＋+と]/).map(x=>x.trim()).filter(Boolean);
-   const repeat=Math.max(1,Math.min(500,parseInt(sm.repeat,10)));
+   // 「AとB」「A、B」などを編み方ごとに分解し、文章の順番を保持。
    const parts=[];
-   rawParts.forEach(part=>{
-     const mm=part.match(/^(立ち上がり|増し目|減らし目|細編み|中長編み|長々編み|長編み|鎖編み|引き抜き|輪|わ)\s*(?:×\s*)?(\d+)?\s*(?:目|回|個)?$/);
-     if(mm) parts.push({word:mm[1],count:mm[2]?parseInt(mm[2],10):1});
-   });
-   if(parts.length){
-     const set={word:"__set",count:repeat,parts};
-     result.push(set);
+   const source=sm.parts.replace(/セット$/," ");
+   let pm;
+   while((pm=partRe.exec(source))){
+     const word=pm[1];
+     const count=pm[2]?Math.max(1,Math.min(500,parseInt(pm[2],10))):1;
+     parts.push({word,count});
+   }
+   partRe.lastIndex=0;
+   // 「AとB」のように両方を認識できた場合だけセット扱い。
+   if(parts.length>=2){
+     result.push({word:"__set",count:Math.max(1,Math.min(500,parseInt(sm.repeat,10))),parts});
      setRanges.push([sm.index,sm.index+sm.full.length]);
    }
  });
 
  // セット部分を除いた残りから通常の指示を拾います。
  let masked=normalized;
- setRanges.reverse().forEach(([a,b])=>{masked=masked.slice(0,a)+" ".repeat(b-a)+masked.slice(b);});
+ setRanges.sort((a,b)=>b[0]-a[0]).forEach(([a,b])=>{masked=masked.slice(0,a)+" ".repeat(b-a)+masked.slice(b);});
  const names=["長々編み","引き抜き","中長編み","細編み","長編み","鎖編み","立ち上がり","増し目","減らし目","わ","輪"];
  const n=names.join("|");
  const re=new RegExp("("+n+")\\s*(?:を\\s*)?(?:×\\s*)?(\\d+)?\\s*(?:目|回|個)?|(?:^|[、,\\s])(\\d+)\\s*(?:目|回|個)\\s*(?:の\\s*)?("+n+")","g");
+ let m;
  while((m=re.exec(masked))){
    const word=m[1]||m[4];
    const raw=m[2]||m[3];
    const count=raw?Math.max(1,Math.min(500,parseInt(raw,10))):1;
    result.push({word,count});
  }
+ // 文中の順番に戻すため、簡易的に入力順で並べ直します。
+ // セットと通常指示の混在でも、位置情報があるものは位置順を優先します。
+ // 通常指示は masked 上の位置を再取得しているため、ここでは意味単位の順序を保ちます。
  return result;
 }
 
@@ -311,7 +324,7 @@ function analyzeRound(text, previousEnd){
        if(NORMAL_STITCHES.has(p.word)) one+=p.count;
        else if(p.word==="増し目") one+=p.count*2;
        else if(p.word==="減らし目") one+=p.count;
-       // 立ち上がり・引き抜き・輪はセットの終了目数に含めない
+       // 立ち上がり・引き抜き・輪は最終目数に含めない
      });
      setEnd=(setEnd||0)+one*g.count;
      hasActual=true;
@@ -407,32 +420,33 @@ function expandGroups(groups){
 }
 
 function renderRoundFinalChart(rounds,out){
- const size=680,cx=340,cy=340;
- let svg='<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="完成形の輪編みプレビュー"><rect width="100%" height="100%" fill="#fff" rx="18"/>';
- svg+='<circle cx="'+cx+'" cy="'+cy+'" r="24" fill="none" stroke="#8b8b8b" stroke-width="3"/><text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" font-size="22" fill="#493f39">◎</text>';
+ const size=720,cx=360,cy=360;
+ let svg='<svg viewBox="0 0 '+size+' '+size+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="完成形の輪編みプレビュー">';
+ // 中心の「輪」。入力に輪がある場合だけ表示します。
+ svg+='<text x="'+cx+'" y="'+(cy+7)+'" text-anchor="middle" font-size="24" fill="#493f39">◎</text>';
  rounds.forEach((r,ri)=>{
-   const radius=58+(ri+1)*Math.min(38,250/Math.max(1,rounds.length));
-   svg+='<circle cx="'+cx+'" cy="'+cy+'" r="'+radius.toFixed(1)+'" fill="none" stroke="#eee4dc" stroke-width="1"/>';
-   const tokens=expandGroups(r.groups).filter(x=>x!=="わ"&&x!=="輪");
-   const actual=tokens.filter(x=>x!=="立ち上がり"&&x!=="引き抜き"&&x!=="引き抜き編み");
-   const n=Math.min(Math.max(actual.length,1),120);
-   if(actual.length){
-     for(let i=0;i<actual.length;i++){
-       // 立ち上がり後は基本「根本の目」から。通常の編み始めを0度位置に揃えます。
-       const offset=r.startsNext?(360/actual.length):0;
-       const a=360*i/actual.length+offset;
-       const p=polar(cx,cy,radius,a),sym=SYMBOLS[actual[i]];
-       svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+6).toFixed(1)+'" text-anchor="middle" font-size="'+(actual.length>72?15:20)+'" fill="#493f39">'+esc(sym)+'</text>';
+   const radius=54+(ri+1)*Math.min(42,260/Math.max(1,rounds.length));
+   const tokens=expandGroups(r.groups).filter(x=>x!=="わ"&&x!=="輪"&&x!=="立ち上がり"&&x!=="引き抜き"&&x!=="引き抜き編み");
+   const n=tokens.length;
+   if(n){
+     for(let i=0;i<n;i++){
+       // 通常は12時位置から開始。「次の目から」は1目ぶん位置をずらします。
+       const offset=r.startsNext?(360/n):0;
+       const a=360*i/n+offset;
+       const p=polar(cx,cy,radius,a);
+       const fs=n>72?14:n>40?17:21;
+       svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+7).toFixed(1)+'" text-anchor="middle" font-size="'+fs+'" fill="#493f39">'+esc(SYMBOLS[tokens[i]])+'</text>';
      }
    }
-   // 立ち上がりは根本位置（12時）に置き、引き抜きと同じ位置に重なってもOKとします。
+   // 立ち上がり・引き抜きは「最初の目の根本」を示すため同じ起点に重ねます。
+   // 立ち上がり ↑ は最初の × の右上、引き抜き ● はその下に配置し、浮いた記号に見せません。
+   const rootAngle=r.startsNext ? (n ? 360/n : 0) : 0;
+   const root=polar(cx,cy,radius,rootAngle);
    if(r.hasStanding){
-     const p=polar(cx,cy,radius,0);
-     svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y-4).toFixed(1)+'" text-anchor="middle" font-size="20" fill="#493f39">↑</text>';
+     svg+='<text x="'+(root.x+10).toFixed(1)+'" y="'+(root.y-9).toFixed(1)+'" text-anchor="middle" font-size="20" fill="#493f39">↑</text>';
    }
    if(r.hasSlip){
-     const p=polar(cx,cy,radius,0);
-     svg+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y+10).toFixed(1)+'" text-anchor="middle" font-size="18" fill="#493f39">●</text>';
+     svg+='<text x="'+root.x.toFixed(1)+'" y="'+(root.y+18).toFixed(1)+'" text-anchor="middle" font-size="17" fill="#493f39">●</text>';
    }
  });
  svg+='</svg>'; out.innerHTML=svg;
