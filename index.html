@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#fffaf3">
 <link rel="manifest" href="manifest.webmanifest">
-<title>かぎ針編み パターンノート V9</title>
+<title>かぎ針編み パターンノート V10</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#fffaf3;color:#493f39;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
@@ -39,7 +39,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 </head>
 <body>
 <div class="wrap">
-<h1>🧶 かぎ針編み パターンノート V9</h1>
+<h1>🧶 かぎ針編み パターンノート V10</h1>
 <div class="sub">入力内容は自動保存されます</div>
 
 <section class="card">
@@ -72,7 +72,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:#7f6a5c;color:#f
 
 <section class="card">
 <h2>📖 編み図にしたい編み方</h2>
-<div class="notice">例：<b>細編み5目</b> → 編み図に「×5」と表示。<br>各段の右端に、その段を編み終えた時点の目数を自動表示します。</div>
+<div class="notice">例：<b>細編み5目</b> → 編み図に「×5」と表示。<br>各段の右端に「消費する目数 → 完成する目数」を自動表示します。増し目は1目を消費して2目、減らし目は2目を消費して1目として計算します。</div>
 <div id="rows" class="rows"><div class="prow"><div class="pno">1段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
 <div class="prow"><div class="pno">2段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
 <div class="prow"><div class="pno">3段目</div><input type="text" class="stitch" autocomplete="off" autocapitalize="off" placeholder="例：細編み5目、増し目1回"></div>
@@ -252,57 +252,38 @@ function parseStitches(text){
  const normalized=String(text)
    .replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xfee0))
    .replace(/引き抜き編み/g,"引き抜き")
-   .replace(/\s+/g," ");
-
- // 「AとBを8回」「AとBを8セット」「AとBのセットを8回」を同じ意味として認識。
- // 「○回」は、複数の編み方をひとまとまりにして繰り返す指示として扱います。
- const setMatches=[];
- const patterns=[
-   /([^、,。]+?)\s*を\s*(\d+)\s*(?:回|セット)/g,
-   /([^、,。]+?)\s*(?:の)?\s*セット\s*を\s*(\d+)\s*回/g
- ];
- patterns.forEach(re=>{
-   let m;
-   while((m=re.exec(normalized))) setMatches.push({index:m.index,full:m[0],parts:m[1].trim(),repeat:m[2]});
- });
- const setRanges=[];
- const stitchWords=["立ち上がり","増し目","減らし目","細編み","中長編み","長々編み","長編み","鎖編み","引き抜き","輪","わ"];
- const partRe=new RegExp("("+stitchWords.join("|")+ ")\\s*(?:×\\s*)?(\\d+)?\\s*(?:目|回|個)?","g");
- setMatches.sort((a,b)=>a.index-b.index);
- setMatches.forEach(sm=>{
-   // 「AとB」「A、B」などを編み方ごとに分解し、文章の順番を保持。
-   const parts=[];
-   const source=sm.parts.replace(/セット$/," ");
-   let pm;
-   while((pm=partRe.exec(source))){
-     const word=pm[1];
-     const count=pm[2]?Math.max(1,Math.min(500,parseInt(pm[2],10))):1;
-     parts.push({word,count});
-   }
-   partRe.lastIndex=0;
-   // 「AとB」のように両方を認識できた場合だけセット扱い。
-   if(parts.length>=2){
-     result.push({word:"__set",count:Math.max(1,Math.min(500,parseInt(sm.repeat,10))),parts});
-     setRanges.push([sm.index,sm.index+sm.full.length]);
-   }
- });
-
- // セット部分を除いた残りから通常の指示を拾います。
- let masked=normalized;
- setRanges.sort((a,b)=>b[0]-a[0]).forEach(([a,b])=>{masked=masked.slice(0,a)+" ".repeat(b-a)+masked.slice(b);});
- const names=["長々編み","引き抜き","中長編み","細編み","長編み","鎖編み","立ち上がり","増し目","減らし目","わ","輪"];
- const n=names.join("|");
- const re=new RegExp("("+n+")\\s*(?:を\\s*)?(?:×\\s*)?(\\d+)?\\s*(?:目|回|個)?|(?:^|[、,\\s])(\\d+)\\s*(?:目|回|個)\\s*(?:の\\s*)?("+n+")","g");
- let m;
- while((m=re.exec(masked))){
-   const word=m[1]||m[4];
-   const raw=m[2]||m[3];
-   const count=raw?Math.max(1,Math.min(500,parseInt(raw,10))):1;
-   result.push({word,count});
+   .replace(/増やし目/g,"増し目")
+   .replace(/\s+/g," ").trim();
+ if(!normalized) return result;
+ const wordPattern=/(長々編み|引き抜き|中長編み|細編み|長編み|鎖編み|立ち上がり|増し目|減らし目|わ|輪)/g;
+ function readParts(source){
+   const matches=Array.from(source.matchAll(wordPattern));
+   return matches.map((m,i)=>{
+     const after=source.slice(m.index+m[0].length, i+1<matches.length?matches[i+1].index:source.length);
+     const before=source.slice(i?matches[i-1].index+matches[i-1][0].length:0,m.index);
+     const afterCount=after.match(/^\s*(?:を\s*)?(?:×\s*)?(\d+)\s*(?:目|回|個)?/);
+     const beforeCount=before.match(/(?:^|[、,\s])([0-9]+)\s*(?:目|回|個)\s*の\s*$/);
+     const raw=afterCount?afterCount[1]:(beforeCount?beforeCount[1]:null);
+     return {word:m[0],count:raw?Math.max(1,Math.min(500,parseInt(raw,10))):1,index:m.index};
+   });
  }
- // 文中の順番に戻すため、簡易的に入力順で並べ直します。
- // セットと通常指示の混在でも、位置情報があるものは位置順を優先します。
- // 通常指示は masked 上の位置を再取得しているため、ここでは意味単位の順序を保ちます。
+ // 編み方名を区切り記号でつないだまとまりを、後ろの「を8回」などで反復指定。
+ // 「セット」は任意。グループの前後に通常の指示があっても入力順を維持します。
+ const op="(?:長々編み|引き抜き|中長編み|細編み|長編み|鎖編み|立ち上がり|増し目|減らし目|わ|輪)";
+ const repeatRe=new RegExp("("+op+"(?:\\s*(?:と|→|->|、|,|＋|\\+)\\s*"+op+")+)(?:\\s*の\\s*セット)?\\s*を\\s*(\\d+)\\s*(?:回|セット)","g");
+ const ranges=[];
+ let rm;
+ while((rm=repeatRe.exec(normalized))){
+   const parts=readParts(rm[1]).map(({word,count})=>({word,count}));
+   if(parts.length>=2){
+     result.push({word:"__set",count:Math.max(1,Math.min(500,parseInt(rm[2],10))),parts,index:rm.index});
+     ranges.push([rm.index,rm.index+rm[0].length]);
+   }
+ }
+ let masked=normalized;
+ ranges.slice().sort((a,b)=>b[0]-a[0]).forEach(([a,b])=>{masked=masked.slice(0,a)+" ".repeat(b-a)+masked.slice(b);});
+ readParts(masked).forEach(({word,count,index})=>result.push({word,count,index}));
+ result.sort((a,b)=>a.index-b.index);
  return result;
 }
 
@@ -315,43 +296,37 @@ const NORMAL_STITCHES=new Set(["細編み","中長編み","長編み","長々編
 
 function analyzeRound(text, previousEnd){
  const groups=parseStitches(text);
- let base=0,inc=0,dec=0,hasNormal=false,hasRing=false,hasStanding=false,hasSlip=false,hasActual=false;
- let setEnd=null;
+ let base=0,inc=0,dec=0,chain=0,consumed=0,hasNormal=false,hasRing=false,hasStanding=false,hasSlip=false,hasActual=false;
+ let end=0;
  groups.forEach(g=>{
    if(g.word==="__set"){
-     let one=0;
+     let groupOutput=0;
      g.parts.forEach(p=>{
-       if(NORMAL_STITCHES.has(p.word)) one+=p.count;
-       else if(p.word==="増し目") one+=p.count*2;
-       else if(p.word==="減らし目") one+=p.count;
-       // 立ち上がり・引き抜き・輪は最終目数に含めない
+       if(NORMAL_STITCHES.has(p.word)){groupOutput+=p.count;consumed+=p.count*g.count;hasNormal=true;}
+       else if(p.word==="増し目"){groupOutput+=p.count*2;consumed+=p.count*g.count;inc+=p.count*g.count;}
+       else if(p.word==="減らし目"){groupOutput+=p.count;consumed+=p.count*2*g.count;dec+=p.count*g.count;}
+       else if(p.word==="鎖編み"){groupOutput+=p.count;consumed+=p.count*g.count;chain+=p.count*g.count;}
+       else if(p.word==="立ち上がり"){hasStanding=true;}
+       else if(p.word==="引き抜き"){hasSlip=true;}
+       else if(p.word==="わ"||p.word==="輪"){hasRing=true;}
      });
-     setEnd=(setEnd||0)+one*g.count;
+     end+=groupOutput*g.count;
      hasActual=true;
      return;
    }
-   if(NORMAL_STITCHES.has(g.word)){base+=g.count;hasNormal=true;hasActual=true;}
-   else if(g.word==="増し目"){inc+=g.count;hasActual=true;}
-   else if(g.word==="減らし目"){dec+=g.count;hasActual=true;}
+   if(NORMAL_STITCHES.has(g.word)){base+=g.count;consumed+=g.count;end+=g.count;hasNormal=true;hasActual=true;}
+   else if(g.word==="増し目"){inc+=g.count;consumed+=g.count;end+=g.count*2;hasActual=true;}
+   else if(g.word==="減らし目"){dec+=g.count;consumed+=g.count*2;end+=g.count;hasActual=true;}
    else if(g.word==="立ち上がり"){hasStanding=true;}
    else if(g.word==="引き抜き"||g.word==="引き抜き編み"){hasSlip=true;}
    else if(g.word==="わ"||g.word==="輪"){hasRing=true;}
  });
- let end=null;
- if(setEnd!=null){
-   // セットは「そのセットを何回編むか」から、その段の完成目数を直接算出。
-   end=setEnd;
- }else if(hasNormal){
-   // 増し目1回は1目を2目にするので +1、減らし目1回は2目を1目にするので -1。
-   end=base+inc-dec;
- }else if(inc||dec){
-   end=(previousEnd==null?0:previousEnd)+inc-dec;
- }else if(base>0){
-   end=base;
- }
+ // 目数は「その段で作る目」の数で計算します。
+ // 細編み等は1目、増し目は2目、減らし目は完成目として1目。
+ if(!hasActual) end=null;
  if(end!=null && end<0) end=0;
  const startsNext=/次の目から/.test(text);
- return {groups,end,base,inc,dec,hasRing,hasStanding,hasSlip,hasActual,startsNext};
+ return {groups,end,base,inc,dec,consumed,hasRing,hasStanding,hasSlip,hasActual,startsNext};
 }
 
 function calculateRounds(values){
@@ -359,7 +334,7 @@ function calculateRounds(values){
  return values.map((text,index)=>{
    const a=analyzeRound(text,previousEnd);
    if(a.end!=null) previousEnd=a.end;
-   return {index,text,groups:a.groups,end:a.end,recognized:a.groups.length>0,base:a.base,inc:a.inc,dec:a.dec,hasRing:a.hasRing};
+   return {index,text,groups:a.groups,end:a.end,recognized:a.groups.length>0,base:a.base,inc:a.inc,dec:a.dec,consumed:a.consumed,hasRing:a.hasRing,hasStanding:a.hasStanding,hasSlip:a.hasSlip,startsNext:a.startsNext};
  });
 }
 
@@ -383,7 +358,7 @@ function renderChart(){
    const symbols=document.createElement("div"); symbols.className="symbols";
    symbols.innerHTML=r.groups.length?formatGroups(r.groups):'<span class="muted">編み方を判定できません</span>';
    const end=document.createElement("div"); end.className="end";
-   end.textContent=r.end!=null?(r.end+"目"):"—";
+   end.textContent=r.end!=null?("消費"+r.consumed+"→"+r.end+"目"):"—";
    line.append(no,symbols,end); chart.appendChild(line);
  });
  if(!any) chart.innerHTML='<span class="muted">編み方を入力すると、ここに自動で反映されます。</span>';
